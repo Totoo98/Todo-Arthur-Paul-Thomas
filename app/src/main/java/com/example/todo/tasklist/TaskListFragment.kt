@@ -18,6 +18,7 @@ import com.example.todo.databinding.ActivityMainBinding
 import com.example.todo.databinding.FragmentTaskListBinding
 import com.example.todo.detail.DetailActivity
 import com.example.todo.user.UserActivity
+import com.example.todo.user.UserViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
 import java.util.*
@@ -28,6 +29,7 @@ class TaskListFragment : Fragment() {
     private var adapter = TaskListAdapter()
 
     private val viewModel: TaskListViewModel by viewModels()
+    private val userModel: UserViewModel by viewModels()
 
     val createTask = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if(result.resultCode == Activity.RESULT_OK) {
@@ -85,25 +87,6 @@ class TaskListFragment : Fragment() {
             createTask.launch(intent)
         }
 
-        lifecycleScope.launch { // on lance une coroutine car `collect` est `suspend`
-            viewModel.tasksStateFlow.collect { newList ->
-                adapter.submitList(newList)
-            }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        lifecycleScope.launch {
-            val user = Api.userWebService.fetchUser().body()
-            binding.userTextView.text = user?.name
-            binding.userImageView.load(user?.avatar) {
-                error(R.drawable.ic_launcher_background) // image par défaut en cas d'erreur
-            }
-        }
-
-        viewModel.refresh()
-
         binding.userImageView.load("https://goo.gl/gEgYUd")
 
         binding.userImageView.setOnClickListener() {
@@ -111,5 +94,26 @@ class TaskListFragment : Fragment() {
             showAvatar.launch(intent)
         }
 
+        lifecycleScope.launch { // on lance une coroutine car `collect` est `suspend`
+            viewModel.tasksStateFlow.collect { newList ->
+                adapter.submitList(newList)
+            }
+        }
+
+        lifecycleScope.launch { // on lance une coroutine car `collect` est `suspend`
+            userModel.userStateFlow.collect { user ->
+                binding.userTextView.text = user.name
+                binding.userImageView.load(user.avatar) {
+                    error(R.drawable.ic_launcher_background) // image par défaut en cas d'erreur
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        viewModel.refresh()
+        userModel.refresh()
     }
 }
