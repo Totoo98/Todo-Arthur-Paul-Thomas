@@ -95,9 +95,9 @@ class TaskListFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         lifecycleScope.launch {
-            val user = Api.userWebService.fetchUser().body()!!
-            binding.userTextView.text = user.name
-            binding.userImageView.load(user.avatar) {
+            val user = Api.userWebService.fetchUser().body()
+            binding.userTextView.text = user?.name
+            binding.userImageView.load(user?.avatar) {
                 error(R.drawable.ic_launcher_background) // image par défaut en cas d'erreur
             }
         }
