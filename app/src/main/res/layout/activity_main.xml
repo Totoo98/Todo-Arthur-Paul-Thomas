@@ -8,6 +8,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:name="com.example.todo.tasklist.TaskListFragment"
+        android:background="@drawable/gradient"
         android:id="@+id/fragment_tasklist"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
