@@ -24,16 +24,22 @@
             android:scaleType="center"
             android:src="@android:drawable/ic_menu_edit" />
 
-        <TextView
+            <TextView
             android:id="@+id/task_title"
+            android:fontFamily="@font/arial_font_family"
+            android:textStyle="bold"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toStartOf="@id/task_button"
             android:layout_toEndOf="@+id/task_edit_button"
             android:layout_marginTop="15px"
-            android:background="@android:color/holo_blue_bright" />
+            android:background="@android:color/holo_blue_bright"
+            android:textAlignment="center"
+            />
         <TextView
             android:id="@+id/task_description"
+            android:fontFamily="@font/arial_font_family"
+            android:textStyle="normal"
             android:background="@android:color/holo_blue_light"
             android:layout_below="@+id/task_title"
             android:layout_toStartOf="@id/task_button"
