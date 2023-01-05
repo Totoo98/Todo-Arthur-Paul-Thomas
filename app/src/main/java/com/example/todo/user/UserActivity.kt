@@ -12,6 +12,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,15 +30,24 @@ import com.example.todo.user.ui.theme.TodoThomasBessieresTheme
 
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import coil.compose.AsyncImage
 import com.example.todo.data.Api
+import com.example.todo.data.User
+import com.example.todo.tasklist.Task
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import okio.use
 import java.io.File
 import java.util.*
 
 class UserActivity : ComponentActivity() {
+    private val userModel: UserViewModel by viewModels()
+
+
 
     private fun Bitmap.toRequestBody(): MultipartBody.Part {
         val tmpFile = File.createTempFile("avatar", "jpg")
@@ -52,13 +62,15 @@ class UserActivity : ComponentActivity() {
     }
 
     private fun Uri.toRequestBody(): MultipartBody.Part {
-        val fileInputStream = contentResolver.openInputStream(this)!!
-        val fileBody = fileInputStream.readBytes().toRequestBody()
-        return MultipartBody.Part.createFormData(
-            name = "avatar",
-            filename = "avatar.jpg",
-            body = fileBody
-        )
+       return contentResolver.openInputStream(this).use {
+            val fileBody = it!!.readBytes().toRequestBody()
+             MultipartBody.Part.createFormData(
+                name = "avatar",
+                filename = "avatar.jpg",
+                body = fileBody
+            )
+        }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,7 +98,7 @@ class UserActivity : ComponentActivity() {
                     uri = captureUri
                     var requestBody = uri?.toRequestBody()
                     if(requestBody != null)
-                        composeScope.launch {
+                        lifecycleScope.launch {
                             Api.userWebService.updateAvatar(requestBody)
                         }
                 }
@@ -96,7 +108,7 @@ class UserActivity : ComponentActivity() {
                 uri = it
                 var requestBody = uri?.toRequestBody()
                 if(requestBody != null)
-                    composeScope.launch {
+                    GlobalScope.launch {
                         Api.userWebService.updateAvatar(requestBody)
                     }
             }
@@ -122,10 +134,22 @@ class UserActivity : ComponentActivity() {
                         },
                     content = { Text("Pick photo") }
                 )
+
+                /*val user by
+                if(user != null)
+                {
+                    Text(text = "Edit User Info", style = MaterialTheme.typography.h3)
+                    OutlinedTextField(user.email, onValueChange = {user = user.copy(email = it)})
+                    OutlinedTextField(user.name, onValueChange = {user = user.copy(name = it)})
+                    Button(onClick = { onValidate(task) }) {
+                        Text(text = "Edit")
+                    }
+                }*/
             }
         }
     }
 }
+
 
 @Composable
 fun Greeting(name: String) {
